@@ -160,7 +160,6 @@
   border-radius: var(--radius-sm);
 }
 
-<<<<<<< HEAD
 /* ─── Freshness Badge ────────────────────────────────────── */
 /* Shows the server-clock time the latest snapshot was fetched. */
 .layer-item__freshness {
