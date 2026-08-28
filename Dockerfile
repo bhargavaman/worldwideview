@@ -36,6 +36,14 @@ ARG NEXT_PUBLIC_WWV_BUILD_ID
 ARG NEXT_PUBLIC_WWV_BUILD_AT
 ARG NEXT_PUBLIC_SENTRY_DSN
 
+# Runtime edition override. Defaults to the build-time bake so a container
+# started without WWV_EDITION behaves exactly like the image it was built
+# from. Operators can override it at runtime via a .env (docker compose
+# pass-through) — the app resolves WWV_EDITION at request time and falls
+# back to the NEXT_PUBLIC_ bake when it is unset.
+ARG WWV_EDITION=${NEXT_PUBLIC_WWV_EDITION}
+ENV WWV_EDITION=${WWV_EDITION}
+
 # Run our pregenerate schema swap script and then generate Prisma client
 RUN NEXT_PUBLIC_WWV_EDITION=$NEXT_PUBLIC_WWV_EDITION pnpm run generate
 
@@ -97,6 +105,10 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV NODE_OPTIONS=--max-old-space-size=768
 ENV PORT=3000
+# Runtime edition — resolved by the app at request time. Set WWV_EDITION
+# at container runtime (e.g. a .env passed to docker compose) to switch
+# editions on the prebuilt image without rebuilding. When unset, the app
+# falls back to the NEXT_PUBLIC_WWV_EDITION build-time bake, then 'local'.
 # DATABASE_URL must be provided via environment variable (no default)
 # Example: postgresql://user:pass@host:5432/dbname
 ENV AUTH_TRUST_HOST=true
