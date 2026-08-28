@@ -14,12 +14,14 @@ import { createDataSlice, type DataSlice } from "./dataSlice";
 import { createConfigSlice, type ConfigSlice } from "./configSlice";
 import { createFavoritesSlice, type FavoritesSlice } from "./favoritesSlice";
 import { createAlertsSlice, type AlertsSlice } from "./alertsSlice";
+import { createSeederHealthSlice, type SeederHealthSlice } from "./seederHealthSlice";
 
 /**
  * Re-exporting slice types for easier access from components and utilities.
  */
 export type { MapConfig, DataConfig } from "./configSlice";
 export type { LayerState } from "./layersSlice";
+export type { SeederHealth } from "./seederHealthSlice";
 
 // ─── Combined Store ──────────────────────────────────────────
 export type AppStore = GlobeSlice &
@@ -30,13 +32,15 @@ export type AppStore = GlobeSlice &
     DataSlice &
     ConfigSlice &
     FavoritesSlice &
-    AlertsSlice;
+    AlertsSlice &
+    SeederHealthSlice;
 
 /**
  * The primary hook for accessing and modifying the application state.
  *
- * This combined store provides access to all nine state slices:
- * globe, layers, timeline, ui, filter, data, config, and favorites.
+ * This combined store provides access to the state slices:
+ * globe, layers, timeline, ui, filter, data, config, favorites, alerts,
+ * and seeder health.
  */
 export const useStore = create<AppStore>((...args) => ({
     ...createGlobeSlice(...args),
@@ -48,4 +52,5 @@ export const useStore = create<AppStore>((...args) => ({
     ...createConfigSlice(...args),
     ...createFavoritesSlice(...args),
     ...createAlertsSlice(...args),
+    ...createSeederHealthSlice(...args),
 }));

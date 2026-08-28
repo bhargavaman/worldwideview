@@ -46,6 +46,7 @@ export function LayerPanel() {
     const setConfigPanelOpen = useStore((s) => s.setConfigPanelOpen);
     const setActiveConfigTab = useStore((s) => s.setActiveConfigTab);
     const setSelectedEntity = useStore((s) => s.setSelectedEntity);
+    const seederHealth = useStore((s) => s.seederHealth);
 
     const allPlugins = pluginManager.getAllPlugins();
     const [searchQuery, setSearchQuery] = useState("");
@@ -238,6 +239,7 @@ export function LayerPanel() {
                                         totalEntityCount={layerState?.budgetExceeded ? layerState.entityCount : undefined}
                                         renderedCount={layerState?.budgetExceeded ? layerState.renderedCount : undefined}
                                         budgetExceeded={layerState?.budgetExceeded}
+                                        seederHealth={seederHealth[managed.plugin.id]}
                                         onToggle={() => handleToggle(managed.plugin.id)}
                                         onSelect={() => {
                                                 const newId = highlightLayerId === managed.plugin.id ? null : managed.plugin.id;

@@ -22,6 +22,8 @@ import { trackEvent } from "@/lib/analytics";
 import { isPluginInstallEnabled } from "@/core/edition";
 import type { PluginManifest } from "@/core/plugins/PluginManifest";
 import { MarketplaceConnect } from "./MarketplaceConnect";
+import { SeederHealthBadge } from "@/components/common/SeederHealthBadge";
+import { fetchSeederHealth } from "@/lib/seederHealthFetcher";
 import "./PluginsTab.css";
 
 // ─── Types ──────────────────────────────────────────────────
@@ -142,6 +144,18 @@ export function PluginsTab() {
     const [updating, setUpdating] = useState<string | null>(null);
     const [needsReload, setNeedsReload] = useState(false);
     const [canInstall, setCanInstall] = useState<boolean>(isPluginInstallEnabled);
+    const seederHealth = useStore((s) => s.seederHealth);
+
+    // HTTP-seed the seeder-health store on mount so badges render before the
+    // first WebSocket broadcast (daily seeders could otherwise be blank for
+    // hours). Best-effort; the engine may not expose seederHealth yet.
+    useEffect(() => {
+        fetchSeederHealth().then((entries) => {
+            if (Object.keys(entries).length > 0) {
+                useStore.getState().setSeederHealth(entries);
+            }
+        });
+    }, []);
 
     const loadPlugins = useCallback(async () => {
         try {
@@ -423,6 +437,7 @@ export function PluginsTab() {
                 </div>
                 <div className="plugin-item__meta">
                   <TrustBadge trust={getTrust(record)} />
+                  <SeederHealthBadge health={seederHealth[record.pluginId]} />
                 </div>
               </div>
               {canInstall && (
@@ -488,6 +503,7 @@ export function PluginsTab() {
                     </div>
                     <div className="plugin-item__meta">
                       <TrustBadge trust={getTrust(record)} />
+                      <SeederHealthBadge health={seederHealth[record.pluginId]} />
                     </div>
                   </div>
                   {canInstall && (

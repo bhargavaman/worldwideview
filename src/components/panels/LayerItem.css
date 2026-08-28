@@ -198,6 +198,13 @@
   white-space: nowrap;
 }
 
+/* ─── Empty Layer Hint ────────────────────────────────────── */
+.layer-item__empty-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 /* ─── Loading Spinner ────────────────────────────────────── */
 .layer-item__spinner {
   display: inline-block;
