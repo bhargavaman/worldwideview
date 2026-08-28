@@ -160,6 +160,32 @@
   border-radius: var(--radius-sm);
 }
 
+/* ─── Freshness Badge ────────────────────────────────────── */
+/* Shows the server-clock time the latest snapshot was fetched. */
+.layer-item__freshness {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  cursor: help;
+}
+
+.layer-item__freshness--fresh {
+  color: var(--accent-cyan);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.layer-item__freshness--aging {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.layer-item__freshness--stale {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+
 /* ─── Loading Spinner ────────────────────────────────────── */
 .layer-item__spinner {
   display: inline-block;

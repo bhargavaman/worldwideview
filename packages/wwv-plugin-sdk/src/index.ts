@@ -117,10 +117,20 @@ export interface GeoEntity {
     properties: Record<string, unknown>;
 }
 
+/** Envelope the data engine wraps around every live snapshot it stores/broadcasts. */
+export interface SnapshotEnvelope<T = unknown> {
+    source: string;
+    /** Server clock ISO timestamp of the moment the engine fetched the data. */
+    fetchedAt: string;
+    items: T;
+    totalCount: number;
+}
+
 export interface WsStreamPayload {
     type: "data" | "error";
     pluginId?: string;
-    payload?: GeoEntity[];
+    /** Either a raw GeoEntity[] or a SnapshotEnvelope, depending on the plugin's mapping contract. */
+    payload?: GeoEntity[] | SnapshotEnvelope;
     error?: string;
 }
 

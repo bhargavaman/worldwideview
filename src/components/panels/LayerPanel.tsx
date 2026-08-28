@@ -223,6 +223,7 @@ export function LayerPanel() {
                                     const isEnabled = layers[managed.plugin.id]?.enabled || false;
                                     const isLoading = layers[managed.plugin.id]?.loading || false;
                                     const count = (entitiesByPlugin[managed.plugin.id] || []).length;
+                                    const fetchedAt = layers[managed.plugin.id]?.fetchedAt;
 
                                     return (
                                       <LayerItem
@@ -231,6 +232,7 @@ export function LayerPanel() {
                                         isEnabled={isEnabled}
                                         isLoading={isLoading}
                                         entityCount={count}
+                                        fetchedAt={fetchedAt}
                                         isSelected={highlightLayerId === managed.plugin.id}
                                         onToggle={() => handleToggle(managed.plugin.id)}
                                         onSelect={() => {
