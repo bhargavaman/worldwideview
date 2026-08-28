@@ -17,6 +17,8 @@ export interface LayerState {
     entityCount: number;
     /** Whether the layer is currently waiting for a network response. */
     loading: boolean;
+    /** Server-provided ISO timestamp of the last snapshot received for this layer, if any. */
+    fetchedAt?: string;
 }
 
 /**
@@ -33,6 +35,8 @@ export interface LayersSlice {
     setEntityCount: (pluginId: string, count: number) => void;
     /** Updates the loading state indicator for a specific layer. */
     setLayerLoading: (pluginId: string, loading: boolean) => void;
+    /** Records the server-provided fetchedAt of the latest snapshot for freshness display. */
+    setLayerFetchedAt: (pluginId: string, fetchedAt: string | undefined) => void;
     /** Initializes a new layer entry in the state if it doesn't already exist. */
     initLayer: (pluginId: string, defaultEnabled?: boolean) => void;
     /** Completely removes a layer from the state. */
@@ -66,6 +70,12 @@ export const createLayersSlice: StateCreator<AppStore, [], [], LayersSlice> = (s
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], loading },
+            },
+        })),
+    setLayerFetchedAt: (pluginId, fetchedAt) => set((state) => ({
+            layers: {
+                ...state.layers,
+                [pluginId]: { ...state.layers[pluginId], fetchedAt },
             },
         })),
     initLayer: (pluginId, defaultEnabled = false) => set((state) => ({

@@ -44,6 +44,13 @@ function normalizePluginId(id: string): string {
   return id.replace(/_/g, "-");
 }
 
+/** Returns fetchedAt when the payload is a SnapshotEnvelope, else undefined. */
+function extractEnvelopeFetchedAt(payload: WsStreamPayload["payload"]): string | undefined {
+  if (Array.isArray(payload) || payload === undefined) return undefined;
+  const fetchedAt = (payload as { fetchedAt?: unknown }).fetchedAt;
+  return typeof fetchedAt === "string" ? fetchedAt : undefined;
+}
+
 class WebSocketClient {
   private engines = new Map<string, EngineConnection>();
 
@@ -181,6 +188,14 @@ class WebSocketClient {
     const plugin = pluginManager.getPlugin(pluginId)?.plugin;
     let finalEntities = data.payload as GeoEntity[];
     const existingEntities = useStore.getState().entitiesByPlugin[pluginId] || [];
+
+    // The engine broadcasts a SnapshotEnvelope whose fetchedAt is the server-clock
+    // moment the data was fetched. Record it for freshness display before any
+    // plugin-specific mapping consumes the envelope.
+    const envelopeFetchedAt = extractEnvelopeFetchedAt(data.payload);
+    if (envelopeFetchedAt !== undefined) {
+      useStore.getState().setLayerFetchedAt(pluginId, envelopeFetchedAt);
+    }
 
     if (plugin && typeof (plugin as any).mapWebsocketPayload === "function") {
       finalEntities = (plugin as any).mapWebsocketPayload(data.payload, existingEntities);
