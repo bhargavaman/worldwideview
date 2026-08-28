@@ -105,6 +105,12 @@ interface LayerItemProps {
     entityCount: number;
     fetchedAt?: string;
     isSelected?: boolean;
+    /** Total entities received for this layer (pre-budget). */
+    totalEntityCount?: number;
+    /** Entities actually rendering after budget thinning. */
+    renderedCount?: number;
+    /** True when the layer's feed exceeded its entity budget. */
+    budgetExceeded?: boolean;
     onToggle: () => void;
     onSelect?: () => void;
 }
@@ -120,6 +126,9 @@ export function LayerItem({
     entityCount,
     fetchedAt,
     isSelected,
+    totalEntityCount,
+    renderedCount,
+    budgetExceeded,
     onToggle,
     onSelect,
 }: LayerItemProps) {
@@ -154,6 +163,14 @@ export function LayerItem({
                   {freshness.label}
                 </span>
               </Tooltip>
+            )}
+            {isEnabled && !isLoading && budgetExceeded && (
+              <span
+                className="layer-item__budget-badge"
+                aria-label="Entity budget exceeded"
+              >
+                rendering {(renderedCount ?? entityCount).toLocaleString()} of {(totalEntityCount ?? entityCount).toLocaleString()}
+              </span>
             )}
           </div>
         </div>

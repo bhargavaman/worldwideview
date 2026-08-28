@@ -224,6 +224,7 @@ export function LayerPanel() {
                                     const isLoading = layers[managed.plugin.id]?.loading || false;
                                     const count = (entitiesByPlugin[managed.plugin.id] || []).length;
                                     const fetchedAt = layers[managed.plugin.id]?.fetchedAt;
+                                    const layerState = layers[managed.plugin.id];
 
                                     return (
                                       <LayerItem
@@ -234,6 +235,9 @@ export function LayerPanel() {
                                         entityCount={count}
                                         fetchedAt={fetchedAt}
                                         isSelected={highlightLayerId === managed.plugin.id}
+                                        totalEntityCount={layerState?.budgetExceeded ? layerState.entityCount : undefined}
+                                        renderedCount={layerState?.budgetExceeded ? layerState.renderedCount : undefined}
+                                        budgetExceeded={layerState?.budgetExceeded}
                                         onToggle={() => handleToggle(managed.plugin.id)}
                                         onSelect={() => {
                                                 const newId = highlightLayerId === managed.plugin.id ? null : managed.plugin.id;

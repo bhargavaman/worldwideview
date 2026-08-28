@@ -186,6 +186,18 @@
   background: rgba(248, 113, 113, 0.08);
 }
 
+/* ─── Budget Badge ───────────────────────────────────────── */
+.layer-item__budget-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
 /* ─── Loading Spinner ────────────────────────────────────── */
 .layer-item__spinner {
   display: inline-block;
