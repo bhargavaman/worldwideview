@@ -62,6 +62,12 @@ const GlobeView = dynamic(() => import("@/core/globe/GlobeView"), {
  * 4. Synchronization with the Cesium globe lifecycle.
  * 5. Managing the "Boot" animation sequence and HUD entry.
  */
+// Module-level guard: React 18 StrictMode double-mounts effects in dev, so
+// startPlatform would otherwise run twice (two pluginManager.init() calls and
+// a double registry walk on remount). Mirrors the bootStarted/startBootOnce
+// pattern used inside the effect below.
+let platformBootStarted = false;
+
 export function AppShell() {
     const initLayer = useStore((s) => s.initLayer);
     const boot = useBootSequence();
@@ -86,27 +92,44 @@ export function AppShell() {
 
     useEffect(() => {
         const startPlatform = async () => {
+            // StrictMode double-invoke guard: the second mount of a dev
+            // double-mount would re-init the plugin manager mid-boot.
+            // Mirrors the bootStarted/startBootOnce pattern below.
+            if (platformBootStarted) return;
+            platformBootStarted = true;
+
             initLogCatcher();
             console.log("[AppShell] Initializing Platform...");
 
-            // Inject host libraries for dynamic plugin loading
-            await injectHostGlobals();
-            setHostReady(true);
+            // Independent boot I/O runs concurrently. Dependency edges are
+            // preserved: host globals must be ready before any dynamic
+            // plugin import (hostReady gates useMarketplaceSync), and
+            // pluginManager.init() is awaited before the first
+            // registerPlugin. Only mutually independent work (env parsing,
+            // disabled-ids snapshot, registry iteration setup) is fanned out.
+            const [, disabledIds, demoDefaultPlugins] = await Promise.all([
+                injectHostGlobals().then(() => {
+                    setHostReady(true);
+                }),
+                Promise.resolve().then(() => getDisabledPluginIds()),
+                Promise.resolve().then(() => {
+                    // Setup demo defaults (independent env parsing)
+                    const defaults = new Set<string>();
+                    if (isDemo) {
+                        const envVar = process.env.NEXT_PUBLIC_DEMO_DEFAULT_PLUGINS || "";
+                        envVar.split(",").forEach((s) => {
+                            const clean = s.trim();
+                            if (clean) defaults.add(clean);
+                        });
+                    }
+                    return defaults;
+                }),
+                pluginManager.init(),
+            ]);
 
-            const disabledIds = getDisabledPluginIds();
-
-            // Setup demo defaults
-            const demoDefaultPlugins = new Set<string>();
-            if (isDemo) {
-                const envVar = process.env.NEXT_PUBLIC_DEMO_DEFAULT_PLUGINS || "";
-                envVar.split(",").forEach((s) => {
-                    const clean = s.trim();
-                    if (clean) demoDefaultPlugins.add(clean);
-                });
-            }
-
-            await pluginManager.init();
-
+            // Per-plugin register+enable stays sequential: the plugin
+            // manager holds shared state, so interleaving registrations
+            // across plugins is not safe.
             for (const plugin of pluginRegistry.getAll()) {
                 await pluginManager.registerPlugin(plugin);
                 let shouldEnable = false;

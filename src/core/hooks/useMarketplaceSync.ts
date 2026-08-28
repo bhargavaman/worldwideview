@@ -129,6 +129,7 @@ export function useMarketplaceSync(hostReady: boolean) {
             const denied = getDeniedUnverifiedIds();
             const newPending: PluginManifest[] = [];
 
+            const loadable: PluginManifest[] = [];
             for (const manifest of manifests) {
                 if (!manifest.id) continue;
                 if (loadedIds.current.has(manifest.id)) continue;
@@ -143,8 +144,15 @@ export function useMarketplaceSync(hostReady: boolean) {
                     continue;
                 }
 
-                await loadManifest(manifest);
+                loadable.push(manifest);
             }
+
+            // Fan out independent plugin loads. allSettled + loadManifest's
+            // own per-plugin try/catch means one bad manifest logs an error
+            // and is skipped without aborting the rest of the sync pass.
+            // The sync-in-flight guard above ensures two passes can never
+            // walk this list concurrently.
+            await Promise.allSettled(loadable.map((manifest) => loadManifest(manifest)));
 
             // Present all pending unverified plugins at once
             if (newPending.length > 0) {
@@ -196,8 +204,13 @@ export function useMarketplaceSync(hostReady: boolean) {
         if (syncInFlightRef.current) return;
         syncInFlightRef.current = true;
         try {
-            await captureInitialDisabled();
-            await syncMarketplacePlugins();
+            // The disabled-builtins snapshot and the marketplace manifest
+            // fetch are independent I/O and run concurrently. The builtin
+            // change check must wait for the snapshot, so it stays last.
+            await Promise.all([
+                captureInitialDisabled(),
+                syncMarketplacePlugins(),
+            ]);
             await checkBuiltinChanges();
         } finally {
             syncInFlightRef.current = false;

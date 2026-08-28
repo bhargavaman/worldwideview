@@ -44,7 +44,7 @@ Agents MUST respect these at all times:
 - **Import aliases**: `@/*` → `./src/*`; `@worldwideview/wwv-plugin-sdk` → `./packages/wwv-plugin-sdk/src`
 - **CSS**: Vanilla CSS only. Global: `src/app/globals.css`. Scoped: CSS Modules. HUD: `src/styles/hud-animations.css`.
 - **Rendering entities**: Points use `type: "point"` + `size`/`outlineColor`/`outlineWidth`. Billboards use `type: "billboard"` + `iconUrl`/`iconScale`. NEVER mix.
-- **Plugin registration**: Built-ins via `AppShell.tsx` → `PluginRegistry` → `PluginManager`. Marketplace plugins via `InstalledPluginsLoader`.
+- **Plugin registration**: Built-ins via `AppShell.tsx` → `PluginRegistry` → `PluginManager`. Marketplace plugins via `/api/marketplace/load` → `useMarketplaceSync` → `pluginManager.loadFromManifest`.
 - **Workspace**: Use `"workspace:*"` (not `"*"`) for internal deps. New `packages/` plugins need `transpilePackages` in `next.config.ts`.
 - **Temp files**: Save debugging scripts/outputs exclusively in `/local-scripts/` — never in root.
 - **Cleanliness**: Remove dead code, unused imports, debug `console.log` before finalising. Never use `any` or `@ts-ignore`. Never create `.mdc` files.
