@@ -108,7 +108,7 @@ vi.mock("@/lib/marketplace/trustedPlugins", () => ({
 vi.mock("@/core/plugins/pluginPreferences", () => ({
     getDisabledPluginIds: () => new Set<string>(),
 }));
-vi.mock("@/core/edition", () => ({ isDemo: false }));
+vi.mock("@/core/edition", () => ({ isDemo: false, edition: "local", getEdition: () => "local" }));
 
 const MANIFESTS: PluginManifest[] = [
     {

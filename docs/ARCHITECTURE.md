@@ -160,7 +160,7 @@ When multiple entities share a screen-space cluster (busy ports, busy airspaces)
 
 ## Edition System
 
-WorldWideView ships in three editions, controlled by the `NEXT_PUBLIC_WWV_EDITION` environment variable. Feature flags are derived from this in [`src/core/edition.ts`](../src/core/edition.ts).
+WorldWideView ships in three editions, controlled at runtime by the `WWV_EDITION` environment variable (server-side), with `NEXT_PUBLIC_WWV_EDITION` kept as the build-time bake for the docker-publish images and client bundles. Precedence: `WWV_EDITION` → `NEXT_PUBLIC_WWV_EDITION` → `local`. Feature flags are derived from this in [`src/core/edition.ts`](../src/core/edition.ts).
 
 | Edition | Auth | Use case |
 |---|---|---|
