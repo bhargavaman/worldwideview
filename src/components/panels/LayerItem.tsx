@@ -12,8 +12,10 @@ import { ShieldAlert, Wrench } from "lucide-react";
 import { PluginIcon } from "@/components/common/PluginIcon";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { getFreshness } from "@/core/data/freshness";
+import { SeederEmptyChecklist } from "@/components/common/SeederEmptyChecklist";
 import { pluginManager } from "@/core/plugins/PluginManager";
 import type { WorldPlugin } from "@/core/plugins/PluginTypes";
+import type { SeederHealth } from "@/core/state/seederHealthSlice";
 import "./LayerItem.css";
 
 // ─── Category Labels ────────────────────────────────────────
@@ -113,6 +115,8 @@ interface LayerItemProps {
     budgetExceeded?: boolean;
     onToggle: () => void;
     onSelect?: () => void;
+    /** Optional seeder health used by the 'why is my layer empty?' checklist. */
+    seederHealth?: SeederHealth;
 }
 
 /**
@@ -131,6 +135,7 @@ export function LayerItem({
     budgetExceeded,
     onToggle,
     onSelect,
+    seederHealth,
 }: LayerItemProps) {
     // Freshness renders only when the server provided fetchedAt — graceful degradation otherwise.
     const showFreshness = Boolean(fetchedAt) && isEnabled && !isLoading;
@@ -172,6 +177,11 @@ export function LayerItem({
                 rendering {(renderedCount ?? entityCount).toLocaleString()} of {(totalEntityCount ?? entityCount).toLocaleString()}
               </span>
             )}
+            {isEnabled && !isLoading && entityCount === 0 && (
+              <div className="layer-item__empty-hint">
+                <SeederEmptyChecklist health={seederHealth} />
+              </div>
+                    )}
           </div>
         </div>
 
